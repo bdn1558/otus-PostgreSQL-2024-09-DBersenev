@@ -10,7 +10,7 @@
     ```
 4) Создаём сетевую инфраструктуру через CLI
     ```sh
-    yc vpc network create --name otus-net --description "otus-net" && \
+    yc vpc network create --name otus-net --description "otus-net"
     yc vpc subnet create --name otus-subnet --range 192.168.0.0/24 --network-name otus-net --description "otus-subnet"
     ```
 5) Создаём ВМ
