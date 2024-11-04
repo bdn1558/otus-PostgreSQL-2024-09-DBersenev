@@ -1,3 +1,4 @@
+# Физический уровень PostgreSQL
 ## Создание ВМ
 1) Создаём ВМ c Ubuntu 22.04 c использованием существующей настроек сети и ключа
     ```sh
@@ -12,7 +13,7 @@
 	```
 2) Подключаемся к созданной ВМ через CLI с использованием ключа:
     ```sh 
-    yc compute ssh -name pg-vm1 --identity-file yc_key --login yc-user
+    yc compute ssh --name pg-vm1 --identity-file yc_key --login yc-user
     ```
 ## Установка PostgreSQL 17
 1) Добавляем репозиторий PostgreSQL 17:
@@ -44,7 +45,7 @@
     \q
     ```
 7) Запускаем psql под пользователем postgres
-	```
+	```sh
 	sudo -u postgres psql
 	```
 8) Создаём таблицу и наполняем данными:
@@ -63,12 +64,12 @@
 	(5 rows)
 	```
 9) Останавливаем кластер:
-	```
+	```sh
 	sudo -u postgres pg_ctlcluster 17 main stop
 	```
 ## Создание и монтирование диска	
 1) Cоздаём новый диск размером 10GB:
-	```
+	```sh
 	yc compute disk create --name new-disk --size 10 --description "new disk"
 	```  
 	```
@@ -80,18 +81,18 @@
 	| fhmth7p1isa8******** |          | 16106127360 | ru-central1-a | READY  | fhmpb0udos6d******** |                 |             |
 	+----------------------+----------+-------------+---------------+--------+----------------------+-----------------+-------------+
 	```
-2) Подключаем созданный диск к ВМ и проверяем, что он подключён:
-	```
+2) Подключshаем созданный диск к ВМ и проверяем, что он подключён:
+	```sh
 	yc compute instance attach-disk pg-vm1 --disk-name new-disk --mode rw
 	```
 6) Проверяем доступные диски, чтобы узнать имя подключённого диска:
-	```
+	```sh
 	sudo fdisk -l
 	Disk /dev/vda: 15 GiB, 16106127360 bytes, 31457280 sectors
 	Disk /dev/vdb: 10 GiB, 10737418240 bytes, 20971520 sectors
 	```
 7) Разбиваем диск /dev/vdb на разделы через cfdisk:
-	```
+	```sh
 	sudo cfdisk /dev/vdb
 	``` 
 8) Выбираем тип разметки GPT 
@@ -114,7 +115,7 @@
 	>>  /dev/vdb1           2048    20971486    20969439     10G Linux filesystem
 	```
 11) Проверяем, что в системе появился новый раздел vdb1 на диске /dev/vdb:
-	```
+	```sh
 	lsblk
 	vda    252:0    0    15G  0 disk
 	├─vda1 252:1    0     1M  0 part
@@ -123,35 +124,35 @@
 	└─vdb1 252:17   0    10G  0 part
 	```
 12) Форматируем раздел в ext4
-	```
+	```sh
 	sudo mkfs.ext4 /dev/vdb1
 	```
 13) Создаём папку, в которую будет смонтирован диск:
-	```
+	```sh
 	sudo mkdir -p /mnt/data
 	```
 14) Настраиваем автоматическое монтирование:
-	```
+	```sh
 	sudo nano /etc/fstab	
 	/dev/vdb1     mnt/data     ext4     defaults     0 0
 	```	
 15) Перегружаем ВМ и проверяем, что диск смонтирован:
-	```
+	```sh
 	df -h -x tmpfs
 	Filesystem      Size  Used Avail Use% Mounted on                                                                                                  
 	/dev/vda2        15G  4.3G  9.8G  31% /
 	/dev/vdb1       9.8G   24K  9.3G   1% /mnt/data
 	```
 16) Делаем postgres владельцем /mnt/data
-	```
+	```sh
 	sudo chown -R postgres:postgres /mnt/data/
 	```
 17) Переносим содержимое /var/lib/postgres/17 в /mnt/data
-	```
+	```sh
 	mv /var/lib/postgresql/17 /mnt/data
 	```
 18) Запускаем кластер и получаем ошибку, что каталог с данными недоступен, так как он был перемещён на новый раздел, а значение data_directory в postgresql.conf ссылается на старое местоположение:
-	```
+	```sh
 	sudo -u postgres pg_ctlcluster 17 main start
 	Error: /var/lib/postgresql/17/main is not accessible or does not exist
 
@@ -163,11 +164,11 @@
 	data_directory = '/mnt/data/17/main'
 	```
 21) Запускаем кластер:
-	```
+	```sh
 	sudo -u postgres pg_ctlcluster 17 main start
 	```
 22) Подключаемся под postgres и проверяем наличие данных в таблице:
-	```
+	```sh
 	sudo -u postgres psql
 	```
 	```sql
@@ -184,7 +185,7 @@
 	```
 ## Задание со звёздочкой
 1) Создаём вторую ВМ по аналогии с первой:
-	```
+	```sh
 	yc compute instance list
 	+----------------------+--------+---------------+---------+---------------+--------------+
 	|          ID          |  NAME  |    ZONE ID    | STATUS  |  EXTERNAL IP  | INTERNAL IP  |
@@ -194,63 +195,63 @@
 	+----------------------+--------+---------------+---------+---------------+--------------+
 	```
 2) Устанавливаем и настраиваем PostgreSQL 17:
-	```
+	```sh
 	pg_lsclusters
 	Ver Cluster Port Status Owner    Data directory              Log file
 	17  main    5432 online postgres /var/lib/postgresql/17/main /var/log/postgresql/postgresql-17-main.log
 	```
 3) Останавливаем кластер:
-	```
+	```sh
 	sudo -u postgres pg_ctlcluster 17 main stop
 	```
 4) Удаляем каталог с данными PostgreSQL
-	```
+	```sh
 	sudo rm -R /var/lib/postgresql/17
 	```
 5) Кластер не запускается:
-	```
+	```sh
 	sudo -u postgres pg_ctlcluster 17 main start
 	Error: /var/lib/postgresql/17/main is not accessible or does not exist
 	```
 6) Останавливаем обе ВМ:
-	```
+	```sh
 	yc compute instance stop pg-vm1
 	yc compute instance stop pg-vm2
 	```
 7) Отключаем диск от первой ВМ и подключаем ко второй:
-	```
+	```sh
 	yc compute instance detach-disk pg-vm1 --disk-name new-disk
 	yc compute instance attach-disk pg-vm2 --disk-name new-disk --mode rw
 	```
 8)  Запускаем вторую ВМ и подключаемся к ней:
-	```
+	```sh
 	yc compute instance start pg-vm2
 	yc compute ssh --name pg-vm2 --identity-file yc_key --login yc-user
 	```
 9) Создаём папку для монтирования диска:
-	```
+	```sh
 	sudo mkdir -p /mnt/data
 	```
 10) Настраиваем автоматическое монтирование:
-	```
+	```sh
 	sudo nano /etc/fstab	
 	/dev/vdb1     mnt/data     ext4     defaults     0 0
 	```	
 11) Изменяем значение data_directory в postgresql.conf:
-	```
+	```sh
 	sudo nano /etc/postgresql/17/main/postgresql.conf
 	data_directory = '/mnt/data/17/main'
 	```
 12) Делаем postgres владельцем /mnt/data
-	```
+	```sh
 	sudo chown -R postgres:postgres /mnt/data/
 	```
 13) Рестартуем ВМ:
-	```
+	```sh
 	yc compute instance restart pg-vm2
 	```
 14) Подключаемся под postgres и проверяем наличие данных в таблице:
-	```
+	```sh
 	sudo -u postgres psql
 	```
 	```sql
