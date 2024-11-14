@@ -22,6 +22,8 @@
 - Запускаем тест с дефолтными настройками:
 	```sh
 	postgres@pg-vm4:/home/yc-user$ pgbench -c 50 -j 2 -P 10 -T 60 postgres
+	```
+	```
 	pgbench (17.0 (Ubuntu 17.0-1.pgdg22.04+1))
 	starting vacuum...end.
 	progress: 10.0 s, 345.6 tps, lat 141.770 ms stddev 150.930, 0 failed
@@ -42,7 +44,7 @@
 	latency average = 134.141 ms
 	latency stddev = 155.365 ms
 	initial connection time = 71.063 ms
-	*tps = 371.892577 (without initial connection time)
+	tps = 371.892577 (without initial connection time)
 	```
 
 - Генерируем рекомендуемые настройки с помощью PGCоnfig (https://www.pgconfig.org):
@@ -80,6 +82,8 @@
 - Запускаем тест с новыми настройками PostreSQL:
 	```sh
 	postgres@pg-vm4:/home/yc-user$ pgbench -c 50 -j 2 -P 10 -T 60 postgres
+	```
+	```
 	pgbench (17.0 (Ubuntu 17.0-1.pgdg22.04+1))
 	starting vacuum...end.
 	progress: 10.0 s, 401.7 tps, lat 122.088 ms stddev 139.049, 0 failed
@@ -113,6 +117,8 @@
 
 	```sh
 	postgres@pg-vm4:/home/yc-user$ pgbench -c 50 -j 2 -P 10 -T 60 postgres
+	```
+	```
 	pgbench (17.0 (Ubuntu 17.0-1.pgdg22.04+1))
 	starting vacuum...end.
 	progress: 10.0 s, 464.4 tps, lat 105.108 ms stddev 124.531, 0 failed
@@ -134,7 +140,6 @@
 	latency stddev = 131.053 ms
 	initial connection time = 71.172 ms
 	tps = 450.223966 (without initial connection time)
-	postgres@pg-vm4:/home/yc-user$
 	```
 	
 	- shared_buffers - количество памяти, выделенной PostgreSQL для кеширования данных. Увеличение улучшает производительность, так как уменьшает количество обращений к диску, но может привести к перерасходу оперативной памяти. Например, при значении равном размеру ОП (12GB), кластер перестаёт запускаться.
@@ -147,6 +152,8 @@
 	```
 	```sh
 	postgres@pg-vm4:/home/yc-user$ pgbench -c 50 -j 2 -P 10 -T 60 postgres
+	```
+	```
 	pgbench (17.0 (Ubuntu 17.0-1.pgdg22.04+1))
 	starting vacuum...end.
 	progress: 10.0 s, 3141.5 tps, lat 15.773 ms stddev 13.917, 0 failed
