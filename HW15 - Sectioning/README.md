@@ -47,7 +47,7 @@
 	INSERT INTO bookings.ticket_flights_part (ticket_no, flight_id, fare_conditions, amount)
 	SELECT ticket_no, flight_id, fare_conditions, amount FROM bookings.ticket_flights;
 	```
-- Проверяем список секций и их размер:
+- Проверяем список секций и их размер и видим, что размер примерно одинаковый:
 	```sql
 	SELECT 
 		child.relname AS partition_name,
