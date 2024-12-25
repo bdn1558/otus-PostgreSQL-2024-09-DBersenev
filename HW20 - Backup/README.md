@@ -17,7 +17,7 @@
 	Ver Cluster Port Status Owner    Data directory              Log file
 	17  main    5432 online postgres /var/lib/postgresql/17/main /var/log/postgresql/postgresql-17-main.log
 	```
-	
+# Создание бэкапов через СOPY
 - Создаём базу и схему:
 	```sh
 	sudo -u postgres psql
@@ -103,7 +103,8 @@
 	|11|2be5685d2aa8d62de5a7e782df476fb5|
 	|12|eac2ac055aa710b7a7d7c0b1e3f8a632|
 	|13|271fd3da2251c26f8b357d7078089bec|
-
+	
+# Создание бэкапов через pg_dump
 - Cоздаём бэкап в кастомном сжатом формате двух таблиц
 	```sh
 	sudo -u postgres pg_dump -U postgres -d testdb1 -Fc -t schema1.test_table -t schema1.test_table_backup -f /var/lib/postgresql/backups/tables_backup.dump	
